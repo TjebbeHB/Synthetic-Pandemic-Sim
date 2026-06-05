@@ -1,0 +1,131 @@
+# Source catalogue for OneGov #2 Synthetic Data
+# Every key here can be referenced from variables.yaml via the `source:` field.
+# Human-readable version: ../docs/data-sources.md
+#
+# Schema:
+#   id          slug, matches the `source:` field in variables.yaml
+#   name        human-readable name
+#   provider    CBS | RIVM | NRS | Emissieregistratie | Kadaster | other
+#   kind        statline | open-gis | open-registry | reference-library | api
+#   url         primary public URL
+#   api_url     optional programmatic endpoint
+#   licence     short licence label
+#   notes       free text
+
+sources:
+  - id: cbs-kerncijfers-wijken-buurten
+    name: Kerncijfers wijken en buurten
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/86165NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/86165NED
+    licence: CBS open data (attribution)
+    notes: Workhorse table for demographics, housing, income, work sector, urbanicity at buurt level.
+
+  - id: cbs-onderwijsniveau
+    name: Hoogst behaald onderwijsniveau bevolking
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/82275NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/82275NED
+    licence: CBS open data (attribution)
+
+  - id: cbs-bodemgebruik
+    name: Bodemgebruik in Nederland
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/70262NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/70262NED
+    licence: CBS open data (attribution)
+    notes: Land-use shares per area.
+
+  - id: cbs-nabijheidsstatistieken
+    name: Nabijheidsstatistieken
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/85870NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/85870NED
+    licence: CBS open data (attribution)
+
+  - id: cbs-odin
+    name: Onderweg in Nederland (ODiN)
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/84709NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/84709NED
+    licence: CBS open data (attribution)
+
+  - id: cbs-arbeidsdeelname
+    name: Arbeidsdeelname - kerncijfers
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/82309NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/82309NED
+    licence: CBS open data (attribution)
+
+  - id: cbs-logiesaccommodaties
+    name: Logiesaccommodaties - gasten en overnachtingen
+    provider: CBS
+    kind: statline
+    url: https://opendata.cbs.nl/#/CBS/nl/dataset/82059NED
+    api_url: https://opendata.cbs.nl/ODataApi/odata/82059NED
+    licence: CBS open data (attribution)
+
+  - id: emissieregistratie-rwzi
+    name: RWZI-register (locaties, capaciteit, aansluitingen)
+    provider: Emissieregistratie
+    kind: open-registry
+    url: https://www.emissieregistratie.nl/
+    licence: Public (attribution)
+    notes: Locations and capacities of Dutch wastewater treatment plants.
+
+  - id: pdok-gwsw-rwzi
+    name: RWZI-stroomgebiedskaart (PDOK, RIONED GWSW)
+    provider: PDOK
+    kind: open-gis
+    url: https://www.pdok.nl/introductie/-/article/beheer-stedelijk-watersystemen-gwsw
+    api_url: https://service.pdok.nl/rioned/beheer-stedelijk-watersystemen-gwsw/wfs/v1_0
+    licence: CC0
+    notes: |
+      Canonical open WFS for RWZI catchment / management areas
+      (`beheerstedelijkwater:BeheerGebied`) and point locations
+      (`beheerstedelijkwater:BeheerBouwwerk`). Used by
+      tooling/fetchers/rwzi_register.py. The rivm-nrs-catchment entry
+      stays available as a documented secondary / fallback source.
+
+  - id: rivm-nrs-catchment
+    name: RWZI-stroomgebiedskaart (RIVM / NRS, secondary)
+    provider: RIVM
+    kind: open-gis
+    url: https://www.rivm.nl/coronavirus-covid-19/onderzoek/rioolwater
+    licence: RIVM open data (attribution)
+    notes: |
+      Secondary / fallback catchment polygons published via the National
+      Rioolwatersurveillance (NRS) programme. Use only when the canonical
+      PDOK GWSW WFS does not cover the region of interest, and document
+      the fallback in the team's quality report.
+
+  - id: bag-open
+    name: Basisregistratie Adressen en Gebouwen (BAG)
+    provider: Kadaster
+    kind: open-registry
+    url: https://bag.basisregistraties.overheid.nl/
+    api_url: https://www.pdok.nl/
+    licence: Public (attribution)
+    notes: Use for address points / building footprints when placing synthetic households.
+
+  - id: metasyn
+    name: MetaSyn
+    provider: other
+    kind: reference-library
+    url: https://github.com/sodascience/metasyn
+    licence: MIT
+    notes: Optional reference library for tabular synthesis.
+
+  - id: greenpt
+    name: GreenPT API
+    provider: other
+    kind: api
+    url: https://greenpt.nl/
+    licence: per-team agreement
+    notes: Optional LLM access for documentation / narrative steps. See docs/integrations/greenpt-api.md.
