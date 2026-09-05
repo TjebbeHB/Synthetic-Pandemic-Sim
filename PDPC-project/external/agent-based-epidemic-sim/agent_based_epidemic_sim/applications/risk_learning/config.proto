@@ -1,0 +1,293 @@
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package abesim;
+
+import "agent_based_epidemic_sim/agent_synthesis/population_profile.proto";
+import "agent_based_epidemic_sim/core/parameter_distribution.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// Defines test properties.
+message TestPropertiesProto {
+  // Proportion of those with the disease who are correctly identified as
+  // positives.
+  float sensitivity = 1;
+  // Proportion of those identified by the test as having the disease who
+  // actually have it.
+  float specificity = 2;
+  // The latency in receiving a test result.
+  // May be generalized in the future to account for randomness, different test
+  // types.
+  google.protobuf.Duration latency = 3;
+}
+
+// Configures a TracingPolicy that defines test, trace, and isolation
+// parameters.
+message TracingPolicyProto {
+  // Quarantine parameters.
+  //
+  // The duration to remain quarantined following the latest date of a positive
+  // contact report.
+  google.protobuf.Duration quarantine_duration_contacts = 3;
+  // The duration to quarantine given in SYMPTOMATIC or MILD_SYMPTOMATIC states,
+  // assuming adherence to policy via app or otherwise.
+  google.protobuf.Duration quarantine_duration_symptoms = 6;
+  // The duration to quarantine following the latest positive test result.
+  google.protobuf.Duration quarantine_duration_positive = 7;
+  // The duration to remain quarantined following the latest date of risk score
+  // above threshold.
+  google.protobuf.Duration quarantine_duration_risk_score = 8;
+  // Quarantine if risk score above threshold.
+  float quarantine_risk_score_threshold = 9;
+  // Fraction of individuals that quarantine on symptoms.
+  float self_quarantine_on_symptoms_fraction = 14;
+
+  // Test parameters.
+  //
+  // The properties of the test available within the TracingPolicy.
+  TestPropertiesProto test_properties = 5;
+  // The duration for which test results are valid (e.g., a negative).
+  // May serve as a buffering between test requests.
+  google.protobuf.Duration test_validity_duration = 1;
+  // Test on symptoms.
+  bool test_on_symptoms = 10;
+  // Test given risk score above threshold.
+  float test_risk_score_threshold = 11;
+  // If true, test all agents each timestep.
+  bool test_all_per_timestep = 15;
+  // If true, test an agent upon receiving an EN (notification from a contact
+  // who tested postive).
+  bool test_on_contact = 16;
+
+  // Tracing parameters.
+  //
+  // The duration to retain contacts.
+  google.protobuf.Duration contact_retention_duration = 2;
+  // Trace given a positive test result.
+  bool trace_on_positive = 12;
+  // Fraction of interactions captured given both users have the app.
+  // Instrumented as a probability of censoring a given Exposure with a uuid
+  // matching that of a ContactReport.
+  float traceable_interaction_fraction = 13;
+
+  reserved 4;  // Deprecated fields.
+  // Next field id: 17
+}
+
+message InfectiousnessLevel {
+  enum Level {
+    UNKNOWN = 0;
+    NONE = 1;
+    STANDARD = 2;
+    HIGH = 3;
+  }
+}
+
+// Each exposure has a series of one or more attenuation:duration pairs.
+// Each pair is discretized using the appropriate BLEBucket.max_attenuation and
+// the corresponding weight is used by the model.
+message BLEBucket {
+  float max_attenuation = 1;
+  float weight = 2;
+}
+
+// A min and max bound, mapping days since symptom onset to a particular
+// infectiousness level and model weight. Min and max bounds are required
+// because buckets can be nested in nature.
+message InfectiousnessBucket {
+  InfectiousnessLevel.Level level = 1;
+  float weight = 2;
+  int64 days_since_symptom_onset_min = 3;
+  int64 days_since_symptom_onset_max = 4;
+}
+
+// Weights used in the risk score model.
+message LearningRiskScoreModelProto {
+  // Buckets representing threshold and corresponding weight of ble attenuation
+  // signals.
+  repeated BLEBucket ble_buckets = 1;
+
+  // Buckets representing days_since_symptom onset and a mapping to a
+  // corresponding infectiousness level and model weight.
+  repeated InfectiousnessBucket infectiousness_buckets = 2;
+}
+
+message LearningRiskScorePolicyProto {
+  // The number of days of exosure history to use when determining whether to
+  // quarantine, test and other policy actions.
+  int64 exposure_notification_window_days = 1;
+
+  // Overall scaling factor for risk score. This scales the product of duration
+  // and infection scores.
+  float risk_scale_factor = 2;
+}
+
+message LearningRiskScoreConfig {
+  // Model parameters fed to Abesim via learning.
+  LearningRiskScoreModelProto model_proto = 1;
+
+  // Policy factors effecting the decision to take action on risk score e.g.
+  // quarantine and test.
+  LearningRiskScorePolicyProto policy_proto = 2;
+
+  message TimestampedModel {
+    google.protobuf.Timestamp start_time = 1;
+    LearningRiskScoreModelProto model_proto = 2;
+  }
+  // If present, model_proto will be ignored. Used to impose time-dependent
+  // risk score configs.
+  repeated TimestampedModel timestamped_model = 3;
+}
+
+// Coefficients used when converting from distance to attenutation value.
+message BleParamsProto {
+  float slope = 1;
+  float intercept = 2;
+  float tx = 3;
+  float correction = 4;
+}
+
+// Distribution to represent how we will generate durations in Exposure
+// generator.
+message DurationDistribution {
+  ParetoDistribution pareto_params = 1;
+  // Sometimes the pareto distribution is given to us with the implicit
+  // assumption that the output is a multiple of minute. This allows us to
+  // convert the draw from the pareto distribution to actual minutes.
+  float output_multiplier_minutes = 2;
+}
+
+// Coefficients used when generating distance:attenuation:duration triples for a
+// given exposure.
+message ProximityConfigProto {
+  GammaDistribution distance_distribution = 1;
+  DurationDistribution duration_distribution = 2;
+  BleParamsProto ble_params = 3;
+}
+
+message SpecificProximityConfigProto {
+  // The int32 key must in LocationReference::Type.
+  // A proximity config entry of key 0 (UNKNOWN) is used as default for
+  // unspecified locations.
+  map<int32, ProximityConfigProto> proximity_config = 1;
+}
+
+// Defines the current lockdown state.
+message LockdownStateProto {
+  enum Status {
+    UNKNOWN = 0;
+    OFF = 1;
+    ON = 2;
+  }
+  Status lockdown_status = 1;
+  Status lockdown_elderly_status = 2;
+}
+
+// Defines the factor with which to scale interactions during lockdown for the
+// given network type.
+message LockdownMultiplier {
+  GraphLocation.Type type = 1;
+  float multiplier = 2;
+}
+
+// Paramters that are defined on a per-step basis.
+message StepwiseParams {
+  // Changepoints are the time varying parameters used to set the infectivity
+  // of work and random locations.
+  float changepoint = 1;
+  // Note that this list always implicitly starts with a stage:
+  // stages {
+  //   lockdown_on: false
+  //   lockdown_elderly_on: false
+  // }
+  // so an empty value here means no distancing.
+  LockdownStateProto lockdown_state = 2;
+  // Mobility GLM scale factor.
+  float mobility_glm_scale_factor = 3;
+}
+
+// Top level configuration for the risk learning simulation.
+message RiskLearningSimulationConfig {
+  repeated string agent_file = 1;
+  repeated string location_file = 2;
+
+  google.protobuf.Timestamp init_time = 3;
+  google.protobuf.Duration step_size = 4;
+  int32 steps = 5;
+
+  TracingPolicyProto tracing_policy = 6;
+
+  repeated PopulationProfile profiles = 7;
+  GlobalProfile global_profile = 17;
+  // Number of infections that exist at the beginning of the simulation.
+  float n_seed_infections = 9;
+
+  LearningRiskScoreConfig risk_score_config = 10;
+
+  // The fraction of edges from the workplace network that should be sampled
+  // every day.
+  float daily_fraction_work = 11;
+
+  string summary_filename = 12;
+  string learning_filename = 13;
+  string hazard_histogram_filename = 23;
+
+  // Keeping proximity_config as a global proximity config for backward
+  // compatibility. If both are provided, specific_proximity_config overrides
+  // proximity_config for any defined location.
+  // DEPRECATED: Please use specific_proximity_config with a map entry of key 0
+  // instead.
+  ProximityConfigProto proximity_config = 14 [deprecated = true];
+  SpecificProximityConfigProto specific_proximity_config = 24;
+
+  // Parameters defined per step (see num_steps above).
+  repeated StepwiseParams stepwise_params = 15;
+
+  // The interaction scale factors that apply during lockdown.
+  repeated LockdownMultiplier lockdown_multipliers = 16;
+
+  // Transmission multipliers by location type.
+  float relative_transmission_home = 18;
+  float relative_transmission_occupation = 19;
+  float relative_transmission_random = 20;
+
+  // The number of days to run to seed the simulation. In effect,
+  // stepwise_params is left-padded with no-op scalars with a number of
+  // entries equal to seeding_date_delta.
+  int32 seeding_date_delta_days = 21;
+
+  // If true, append hazard to all TestResults. Useful for generating certain
+  // sets for learning.
+  bool append_hazard_to_test_results = 22;
+
+  // The duration to which to withhold reporting [TestOutcome, [Exposures]]
+  // instances for learning, for example, to guarantee that culprit exposures
+  // are captured.
+  google.protobuf.Duration reporting_delay = 25;
+  // Next id: 26
+  reserved 8;  // Deprecated fields.
+}
+
+// Defines a risk learning simulation template configuration.
+message RiskLearningSimulationMetaConfig {
+  // The template for configuring a given simulation instance.
+  RiskLearningSimulationConfig config_template = 1;
+  // Number of worker threads per instance.
+  int32 num_threads = 2;
+  // Number of realizations to sample.
+  int32 num_realizations = 3;
+}

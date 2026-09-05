@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+node_modules/
+*.tsbuildinfo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.uv/
+uv.lock
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Downloaded reference data (large, fetched on demand)
+data/reference/*.csv
+data/reference/*.parquet
+data/reference/*.json
+data/reference/*.gpkg
+data/reference/*.geojson
+data/reference/*.zip
+!data/reference/.gitkeep
+
+# Team-generated synthetic output (regenerate locally)
+data/synthetic/*
+!data/synthetic/.gitkeep
+!data/synthetic/example-*/
+!data/synthetic/example-*/**
+
+# GIS scratch
+*.shp.xml
+*.tmp
+
+# Local verification artifacts
+artifacts/

@@ -1,0 +1,151 @@
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package abesim;
+
+import "agent_based_epidemic_sim/core/pandemic.proto";
+import "agent_based_epidemic_sim/core/parameter_distribution.proto";
+import "agent_based_epidemic_sim/core/ptts_transition_model.proto";
+
+message VisitDuration {
+  LocationReference.Type location_type = 1;
+  GaussianDistribution gaussian_distribution = 2;
+}
+
+message RandomGraphInteractions {
+  float mean = 1;
+  float stddev = 2;
+}
+
+// A message representing a given class of users. May be a function of
+// age or other comorbidities.
+message PopulationProfile {
+  int64 id = 1;
+  // For example, a representation of the value of the joint distribution
+  // corresponding to these parameters, such as age.
+  // TODO: Map descriptor to Person proto.
+  string label = 2;
+  PTTSTransitionModelProto transition_model = 3;
+  float susceptibility = 4;
+  float infectiousness = 5;
+  // The duration spent in visits to each location type.
+  repeated VisitDuration visit_durations = 6;
+  // Distribution that determines the number of edges assigned to each agent
+  // with this profile when visiting a random location.
+  RandomGraphInteractions random_visit_params = 7;
+  // The fraction of the cohort that use the app.
+  float app_users_fraction = 8;
+}
+
+// Properties shared by all users, independent of age or other comorbities.
+message GlobalProfile {
+  // Infectivity scaling factors for asymptomatic and mildly symptomatic users.
+  float asymptomatic_infectious_factor = 1;
+  float mild_infectious_factor = 2;
+}
+
+message PopulationProfiles {
+  repeated PopulationProfile population_profiles = 1;
+}
+
+// GraphLocation is a location whose edges represent possible interactions
+// between agents.
+message GraphLocation {
+  enum Type {
+    UNKNOWN = 0;
+    OCCUPATION_PRIMARY = 1;
+    OCCUPATION_SECONDARY = 2;
+    OCCUPATION_WORK = 3;
+    OCCUPATION_RETIRED = 4;
+    OCCUPATION_ELDERLY = 5;
+    HOUSEHOLD = 6;
+    RANDOM = 7;
+  }
+  message Edge {
+    int64 uuid_a = 1;
+    int64 uuid_b = 2;
+  }
+  repeated Edge edges = 1;
+  Type type = 2;
+}
+
+// GraphParamLocation is a location whose parameters define a Watts-Strogatz
+// small world graph whose edges represent possible interactions between agents.
+message GraphParamLocation {
+  int64 nodes = 1;
+  int64 degree = 2;
+}
+
+// A RandomParamLocation is a location whose parameters define a random graph
+// whose edges represent possible interactions between agents.
+message RandomParamLocation {
+  // TODO: Add negative binomial params.
+}
+
+// DenseLocation is a location in which all cohabiting agents interact with
+// each other.
+message DenseLocation {
+  int32 size = 1;
+}
+
+// Representation of a location.
+message LocationProto {
+  LocationReference reference = 1;
+  oneof location {
+    GraphLocation graph = 2;
+    GraphParamLocation graph_params = 3;
+    RandomParamLocation random = 4;
+    DenseLocation dense = 5;
+  }
+}
+
+message LocationReference {
+  enum Type {
+    UNKNOWN = 0;
+    HOUSEHOLD = 1;
+    BUSINESS = 2;
+    RANDOM = 3;
+  }
+  int64 uuid = 1;
+  Type type = 2;
+}
+
+// Representation of an agent.
+// TODO: Move essentialness fraction here.
+message AgentProto {
+  int64 uuid = 1;
+  int64 population_profile_id = 2;
+  HealthState.State initial_health_state = 3;
+  repeated LocationReference locations = 4;
+}
+
+message NetworkProperties {
+  // Mean daily interactions at work (school, community center) for age groups:
+  //   - Children (0-19)
+  //   - Adult (20-69)
+  //   - Elderly (70+)
+  float mean_work_interactions_child = 1;
+  float mean_work_interactions_adult = 2;
+  float mean_work_interactions_elderly = 3;
+  // Rewire parameter on Watts-Strogatz workplace networks.
+  float work_network_rewire = 4;
+  // Fraction of an adult per child (elderly) in child (elderly) network.
+  float child_network_adults = 5;
+  float elderly_network_adults = 6;
+  // Fraction of people in work network that an individual interacts with daily.
+  // NB: Duplicated in config for real time use.
+  float daily_fraction_work = 7;
+}

@@ -1,0 +1,24 @@
+# Local dependencies and generated builds
+node_modules/
+.venv/
+__pycache__/
+dist/
+dist-tablet/
+*.tsbuildinfo
+*.pyc
+artifacts/
+*.log
+.DS_Store
+
+# Credentials and machine-specific settings
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+.claude/
+
+# Generated person-level population files are distributed separately.
+PDPC-project/gensynthpop-rotterdam/output/*.csv
+PDPC-project/gensynthpop-rotterdam/output/*.csv.gz

@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "generatedFrom": [],
+    "notes": [
+      "Empty by default: nation mode falls back to the hand-built scaffold in netherlandsSeed.ts.",
+      "Populate this file by running scripts/build_nation_profiles.py against a national CBS Kerncijfers CSV (all gemeenten)."
+    ]
+  },
+  "profiles": []
+}

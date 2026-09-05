@@ -1,0 +1,260 @@
+# Variable catalogue for OneGov #2 Synthetic Data
+# Source of truth for the variables a submission can target.
+# Human-readable version: ../docs/variables.md
+# Mirrors ../resources/SynthData.xlsx as delivered by the challenge owners.
+#
+# Schema:
+#   id          stable slug (lowercase, kebab-case)
+#   name        Dutch name as in the spreadsheet
+#   priority    must-have | should-have | could-have | would-have
+#   category    spatial | demographics | housing | socio-economic | health | land-use | mobility
+#   discipline  epi | soc | meta                # epi=infection model, soc=social context, meta=metagenomics/RWZI
+#   source      key into sources.yaml
+#   table_id    CBS table id or external identifier
+#   notes       optional free text
+
+variables:
+  # ── Must-have ────────────────────────────────────────────────────────────
+  - id: buurtcode
+    name: Buurtcode / wijkcode (BU/WK)
+    priority: must-have
+    category: spatial
+    discipline: soc
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: bevolkingsomvang-buurt
+    name: Bevolkingsomvang per buurt
+    priority: must-have
+    category: demographics
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: leeftijdsverdeling
+    name: Leeftijdsverdeling (0-14 / 15-24 / 25-44 / 45-64 / 65+)
+    priority: must-have
+    category: demographics
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: huishoudgrootte-samenstelling
+    name: Huishoudgrootte en -samenstelling
+    priority: must-have
+    category: demographics
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: aandeel-niet-westerse-achtergrond
+    name: Aandeel niet-westerse achtergrond
+    priority: must-have
+    category: demographics
+    discipline: soc
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: woningtype
+    name: Woningtype (appartement / rijtjeshuis / vrijstaand)
+    priority: must-have
+    category: housing
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: bezettingsgraad-woning
+    name: Bezettingsgraad woning (personen per woning)
+    priority: must-have
+    category: housing
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: besteedbaar-inkomen-huishouden
+    name: Gemiddeld besteedbaar inkomen per huishouden
+    priority: must-have
+    category: socio-economic
+    discipline: soc
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: stedelijkheidsgraad
+    name: Stedelijkheidsgraad / urban-rural classificatie
+    priority: must-have
+    category: spatial
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: opleidingsniveau
+    name: Opleidingsniveau (laag / midden / hoog, % bevolking 25+)
+    priority: must-have
+    category: socio-economic
+    discipline: soc
+    source: cbs-onderwijsniveau
+    table_id: 82275NED
+
+  - id: rwzi-register
+    name: RWZI-ID, naam, locatie, capaciteit
+    priority: must-have
+    category: spatial
+    discipline: meta
+    source: emissieregistratie-rwzi
+    table_id: rwzi-register
+
+  - id: rwzi-catchment
+    name: Catchment-oppervlak en aansluitingen
+    priority: must-have
+    category: spatial
+    discipline: meta
+    source: pdok-gwsw-rwzi
+    table_id: pdok-gwsw-beheergebied
+
+  - id: landgebruik-woongebied
+    name: Landgebruik - aandeel woongebied (% oppervlak)
+    priority: must-have
+    category: land-use
+    discipline: meta
+    source: cbs-bodemgebruik
+    table_id: 70262NED
+
+  - id: landgebruik-industrie
+    name: Landgebruik - aandeel industrie / bedrijventerrein (%)
+    priority: must-have
+    category: land-use
+    discipline: meta
+    source: cbs-bodemgebruik
+    table_id: 70262NED
+
+  - id: landgebruik-agrarisch
+    name: Landgebruik - aandeel agrarisch (%)
+    priority: must-have
+    category: land-use
+    discipline: meta
+    source: cbs-bodemgebruik
+    table_id: 70262NED
+
+  - id: nabijheid-luchthaven
+    name: Nabijheid (lucht)haven (km tot dichtstbijzijnde)
+    priority: must-have
+    category: spatial
+    discipline: meta
+    source: cbs-nabijheidsstatistieken
+    table_id: 85870NED
+
+  # ── Should-have ──────────────────────────────────────────────────────────
+  - id: arbeidsmarktpositie
+    name: Arbeidsmarktpositie (% werkend / werkloos / arbeidsongeschikt)
+    priority: should-have
+    category: socio-economic
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: uitkeringsontvangers
+    name: Uitkeringsontvangers (bijstand / WW / WAO, n en %)
+    priority: should-have
+    category: socio-economic
+    discipline: soc
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: wmo-gebruik
+    name: WMO-gebruik (% met maatwerkvoorziening)
+    priority: should-have
+    category: health
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: jeugdzorggebruik
+    name: Jeugdzorggebruik (% 0-17 jaar)
+    priority: should-have
+    category: health
+    discipline: soc
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: arbeidssector
+    name: Arbeidssector (zorg / onderwijs / industrie / diensten, %)
+    priority: should-have
+    category: socio-economic
+    discipline: epi
+    source: cbs-arbeidsdeelname
+    table_id: 82309NED
+
+  - id: landgebruik-groen
+    name: Landgebruik - aandeel groen / natuur (%)
+    priority: should-have
+    category: land-use
+    discipline: meta
+    source: cbs-bodemgebruik
+    table_id: 70262NED
+
+  - id: landgebruik-water
+    name: Landgebruik - aandeel water / waterwegen (%)
+    priority: should-have
+    category: land-use
+    discipline: meta
+    source: cbs-bodemgebruik
+    table_id: 70262NED
+
+  - id: schoolgaande-kinderen
+    name: Schoolgaande kinderen per buurt (% 4-17 jaar)
+    priority: should-have
+    category: demographics
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: mobiliteit-woon-werk
+    name: Dagelijkse mobiliteit - woon-werkafstand (gem. km, % forensen)
+    priority: should-have
+    category: mobility
+    discipline: epi
+    source: cbs-odin
+    table_id: 84709NED
+
+  # ── Could-have ───────────────────────────────────────────────────────────
+  - id: autobezit
+    name: Autobezit per huishouden
+    priority: could-have
+    category: mobility
+    discipline: epi
+    source: cbs-kerncijfers-wijken-buurten
+    table_id: 86165NED
+
+  - id: nabijheid-ziekenhuis
+    name: Nabijheid ziekenhuis / SEH (km)
+    priority: could-have
+    category: spatial
+    discipline: epi
+    source: cbs-nabijheidsstatistieken
+    table_id: 85870NED
+
+  - id: nabijheid-verpleeghuis
+    name: Nabijheid verpleeghuis / verzorgingstehuis (km)
+    priority: could-have
+    category: spatial
+    discipline: epi
+    source: cbs-nabijheidsstatistieken
+    table_id: 85870NED
+
+  - id: instellingstype-catchment
+    name: Instellingstype in catchment (school / ziekenhuis)
+    priority: could-have
+    category: spatial
+    discipline: epi
+    source: cbs-nabijheidsstatistieken
+    table_id: 85870NED
+    notes: Combine with open BAG for building-type detail.
+
+  # ── Would-have ───────────────────────────────────────────────────────────
+  - id: toeristische-overnachtingen
+    name: Toeristische overnachtingen per jaar (n)
+    priority: would-have
+    category: spatial
+    discipline: epi
+    source: cbs-logiesaccommodaties
+    table_id: 82059NED

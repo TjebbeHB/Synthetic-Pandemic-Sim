@@ -1,22 +1,19 @@
 # OneGov #2 | Synthetic Data: Pandemic Preparedness
 
-## Nieuwe PDPC-versie
-
-De vernieuwde **Rotterdam Scenario-atlas**, eerdere dashboards, populatiegenerator en benodigde CBS-brondata staan samen in **[PDPC-project](PDPC-project/README.md)** op deze branch. De oorspronkelijke bestanden hieronder zijn behouden.
-
-```sh
-cd PDPC-project/onegov2-synthetic-data
-npm ci
-npm run dev -- --host 127.0.0.1 --port 5187
-```
-
-Open http://127.0.0.1:5187. Grote gegenereerde populatiebestanden staan niet in Git; zie [beschikbare output en controlesommen](PDPC-project/gensynthpop-rotterdam/output/README.md).
-
-The new PDPC Rotterdam workspace is in [PDPC-project](PDPC-project/README.md), including the generator and required source data. Use the commands above to run that version. The original application remains below; `main` has not been replaced. This is a research prototype, not a validated epidemiological forecast.
+> **PDPC-doorontwikkeling:** deze kopie opent nu de Rotterdam Scenario-atlas. Zie de [nieuwe projecthandleiding](../README.md) en [methoden en verificatie](docs/pdpc-workspace.md). De onderstaande oorspronkelijke hackathondocumentatie is behouden als context; zij is geen onafhankelijke validatie van de huidige modellen.
 
 ## Nederlands
 
 > *Van buurtaggregaten naar een synthetische populatie die realistisch genoeg is om een uitbraak te modelleren.*
+
+Deze repository bevat de challenge brief, ondersteunende documentatie, een publieke-data-variabelencatalogus, starter tooling en een interactief pandemie-simulatieprototype voor de tweede **OneGov** hackathon, georganiseerd door [GovTech NL](https://govtechnl.nl) met challenge-eigenaren **CBS**, **ODISSEI**, **Erasmus MC** en **Digicampus**.
+
+- **Thema:** Synthetic Data
+- **Datum:** 4-5 juni 2026
+- **Locatie:** The Hague Tech, Den Haag
+- **Challenge-eigenaar:** Marc Winsemius (Digicampus)
+- **Co-eigenaren:** Ruben Dood (CBS), Tom Emery (ODISSEI), Ted Oliekan (Erasmus MC)
+- **Contact:** [hack@govtechnl.nl](mailto:hack@govtechnl.nl)
 
 ### De uitdaging in een alinea
 
@@ -24,7 +21,9 @@ Wanneer een nieuwe infectieziekte opkomt, is snel inzicht in verspreiding door d
 
 **Hoe genereren we, met alleen publiek beschikbare data, een synthetische micro-populatie die statistisch consistent is met CBS-buurtaggregaten, ruimtelijke structuur behoudt, en bruikbaar is voor infection-and-recovery modellen en rioolwatermonitoring (RWZI)?**
 
-De volledige challenge staat in [CHALLENGE.md](CHALLENGE.md).
+De volledige challenge staat in [CHALLENGE.md](CHALLENGE.md). De oorspronkelijke Nederlandse PDF staat in [`OneGov#2_Challenge_Brief_Synthetische_Data.pdf`](OneGov%232_Challenge_Brief_Synthetische_Data.pdf).
+
+Nieuwe teams kunnen beginnen met [START_HERE.md](START_HERE.md).
 
 ### Interactief pandemie-simulatieprototype
 
@@ -33,9 +32,11 @@ Deze fork bevat een browsergebaseerde, stochastische SEIR-simulator die de chall
 De simulator heeft twee dataniveaus:
 
 - **Nation level:** een gewogen Nederlands netwerk, opgeschaald naar de 18.044.027 inwoners uit de geuploade CBS-kerncijfersrij voor Nederland 2025.
-- **Stads niveau:** De grote steden op BU-niveau, gegenereerd uit lokale kerncijfers-, nabijheids- en mobiliteits-CSV's, verrijkt met PDOK/CBS Wijk- en Buurtkaart 2024-centroiden.
+- **The Hague level:** 111 Haagse buurten op BU-niveau, gegenereerd uit lokale kerncijfers-, nabijheids- en mobiliteits-CSV's, verrijkt met PDOK/CBS Wijk- en Buurtkaart 2024-centroiden.
 
 Scenario-instellingen omvatten infectiekans, incubatietijd, besmettelijke periode, mobiliteit, events, huishoudblootstelling, beleidsmomenten, bestaande immuniteit, vaccinatie-uitrol, vaccineffectiviteit, sterftemultiplier en stochastische ensemble-runs met 10-90% onzekerheidsbanden.
+
+De tab **Cellular density** draait een apart cellular-automaton experiment, geïnspireerd op epidemische CA-literatuur. Deze gebruikt een browserklare rasterkaart uit de CBS/PDOK Wijk- en Buurtkaart 2024 `buurten`-collectie, waarbij iedere cel `bevolkingsdichtheid_inwoners_per_km2` krijgt toegewezen.
 
 ```bash
 npm install
@@ -63,6 +64,13 @@ python3 scripts/write_google_abes_config.py --mode hague --output artifacts/goog
 Zie [docs/google-abes-adapter.md](docs/google-abes-adapter.md) voor het ABES-integratiepad en de huidige beperkingen.
 
 De simulator is een onderzoeksprototype voor verkenning en pitchdoeleinden. Er wordt geen echte persoonsdata gebruikt en het is geen operationeel voorspellingsinstrument.
+
+### Twee lagen
+
+Teams kiezen een laag, of laten zien hoe de lagen verbonden kunnen worden:
+
+1. **Laag 1 - Demografische populatie.** Synthetische personen of huishoudens die aansluiten op CBS-*buurt*statistieken over leeftijd, huishoudsamenstelling, woningtype, bezetting, werksector, mobiliteit en ruimtelijke locatie.
+2. **Laag 2 - Rioolwatersurveillance-context.** Koppel de synthetische populatie aan RWZI-stroomgebieden en landgebruik, zodat rioolwatersignalen geografisch en demografisch geïnterpreteerd kunnen worden.
 
 ### Repository-indeling
 
@@ -100,7 +108,7 @@ python -m fetchers.cbs_statline --table 86165NED --region "Utrecht" --out ..\dat
 python examples\01_ipf_minimal.py --buurt BU03440101
 ```
 
-De fetchers zijn bewust dunne wrappers rond publieke CBS/RIVM-open-data-endpoints. **Teams zijn vrij om iedere synthesemethode te kiezen**: IPF, agent-based modellen, generatieve modellen, enzovoort.
+De fetchers zijn bewust dunne wrappers rond publieke CBS/RIVM-open-data-endpoints. **Teams zijn vrij om iedere synthesemethode te kiezen**: IPF, agent-based modellen, generatieve modellen, enzovoort. De referentielibrary [MetaSyn](https://github.com/sodascience/metasyn) is gedocumenteerd als optie, maar niet verplicht.
 
 Zie [data/README.md](data/README.md) voor de data dictionary en herkomstregels, en [docs/methoden.md](docs/methoden.md) voor een korte vergelijking van synthesemethoden.
 
@@ -139,13 +147,31 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions) voor de canoni
 
 Issues en pull requests zijn welkom; zie [CONTRIBUTING.md](CONTRIBUTING.md). Tijdens de hackathon geldt: **een PR per team**.
 
+### Inzending
+
+Inzendingen verlopen via **Alkemio**, het centrale indien- en reviewpunt voor deze challenge.
+
+- **Alkemio submission space:** [Synthetische Data](https://alkem.io/onegov-hackathon/challenges/synthetischedata).
+- Elk team dient via Alkemio in: (1) een **link naar de Pull Request** op deze repo, (2) de **synthetische dataset** als open bestand (CSV of Parquet), (3) het **kwaliteitsrapport** volgens [docs/kwaliteitsrapport-template.md](docs/kwaliteitsrapport-template.md), en (4) de **pitch deck** (max. 10 slides).
+- **De Alkemio-inzending is wat de jury beoordeelt tijdens de hackathon.** De PR blijft vereist als artefact waar de Alkemio-inzending naar verwijst.
+
+Zie [CHALLENGE.md](CHALLENGE.md#submission) voor de volledige beschrijving.
 
 ---
 
 ## English
 
 > *From neighbourhood aggregates to a synthetic population realistic enough to model an outbreak.*
-> 
+
+This repository hosts the challenge brief, supporting documents, a public-data variable catalogue, starter tooling, and an interactive pandemic-simulation prototype for the second **OneGov** hackathon, hosted by [GovTech NL](https://govtechnl.nl) with challenge owners **CBS**, **ODISSEI**, **Erasmus MC** and **Digicampus**.
+
+- **Theme:** Synthetic Data
+- **Date:** 4-5 June 2026
+- **Location:** The Hague Tech, The Hague
+- **Challenge owner:** Marc Winsemius (Digicampus)
+- **Co-owners:** Ruben Dood (CBS), Tom Emery (ODISSEI), Ted Oliekan (Erasmus MC)
+- **Contact:** [hack@govtechnl.nl](mailto:hack@govtechnl.nl)
+
 ### The challenge in one paragraph
 
 When a new infectious disease emerges, rapid insight into how a virus spreads through a population is critical. Epidemiological **infection-and-recovery models** need data at the **micro level**: synthetic persons with realistic age, household, housing, work-sector and mobility characteristics. That micro-data does not exist as an openly available file. What does exist are rich, reliable **aggregates** at *buurt* and *wijk* level from CBS and RIVM.
@@ -163,9 +189,11 @@ This fork includes a browser-based stochastic SEIR simulator that turns the chal
 The simulator has two data scopes:
 
 - **Nation level:** a weighted Dutch network scaled to the 18,044,027 residents in the uploaded 2025 CBS national row.
-- **Local level:** neighbourhood profiles generated from local core-statistics, facility-distance and mobility CSV folders, enriched with PDOK/CBS Wijk- en Buurtkaart 2024 centroids.
+- **The Hague level:** 111 BU-level Hague neighbourhood profiles generated from local core-statistics, facility-distance and mobility CSV folders, enriched with PDOK/CBS Wijk- en Buurtkaart 2024 centroids.
 
 Scenario controls include infection rate, incubation time, infectious period, mobility, events, household exposure, policy timing, prior immunity, vaccination rollout, vaccine effectiveness, mortality multiplier and stochastic ensemble runs with 10-90% uncertainty bands.
+
+The **Cellular density** tab runs a separate cellular automaton experiment inspired by epidemic CA literature. It uses a browser-ready raster generated from the CBS/PDOK Wijk- en Buurtkaart 2024 `buurten` collection, with each cell assigned `bevolkingsdichtheid_inwoners_per_km2`.
 
 ```bash
 npm install
@@ -193,6 +221,13 @@ python3 scripts/write_google_abes_config.py --mode hague --output artifacts/goog
 See [docs/google-abes-adapter.md](docs/google-abes-adapter.md) for the ABES integration path and current limitations.
 
 The simulator is a research prototype for exploration and pitching. It does not use real person-level data and is not an operational forecast.
+
+### Two layers
+
+Teams pick one layer, or show how they connect:
+
+1. **Layer 1 - Demographic population.** Synthetic persons or households that match CBS *buurt* statistics on age, household composition, housing type, occupancy, work sector, mobility, and spatial location.
+2. **Layer 2 - Wastewater-surveillance context.** Link the synthetic population to RWZI catchments and land-use data, so wastewater signals can be interpreted geographically and demographically.
 
 ### Repository layout
 
@@ -268,3 +303,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions) for the canoni
 ### Contributing
 
 Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). During the hackathon the rule is **one PR per team**.
+
+### Submission
+
+Submissions go through **Alkemio**, the central submission and review point for this challenge.
+
+- **Alkemio submission space:** [Synthetische Data](https://alkem.io/onegov-hackathon/challenges/synthetischedata).
+- Each team submits, via Alkemio: (1) a **link to its Pull Request** on this repo, (2) the **synthetic dataset** as an open file (CSV or Parquet), (3) the **quality report** following [docs/kwaliteitsrapport-template.md](docs/kwaliteitsrapport-template.md), and (4) the **pitch deck** (max. 10 slides).
+- **The Alkemio submission is what the jury scores during the hackathon.** The PR is still required as the artefact the Alkemio submission points to.
+
+See [CHALLENGE.md](CHALLENGE.md#submission) for the full description.

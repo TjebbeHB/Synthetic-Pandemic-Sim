@@ -1,0 +1,1828 @@
+# proto-file: agent_based_epidemic_sim/applications/risk_learning/config.proto
+# proto-message: RiskLearningSimulationConfig
+
+# agent_file and location_file are set in simulation_test.cc.
+init_time {
+  seconds: 0
+}
+step_size {
+  seconds: 86400
+}
+steps: 2
+
+n_seed_infections: 30
+
+global_profile {
+  asymptomatic_infectious_factor: 0.33
+  mild_infectious_factor: 0.72
+}
+
+tracing_policy {
+  quarantine_duration_contacts {
+    seconds: 1209600
+  }
+  self_quarantine_on_symptoms_fraction: 1.0
+  test_properties {
+    sensitivity: 1.0
+    specificity: 1.0
+    latency {
+      seconds: 86400
+    }
+  }
+  test_validity_duration {
+    seconds: 604800
+  }
+  contact_retention_duration {
+    seconds: 1209600
+  }
+  trace_on_positive: true
+  traceable_interaction_fraction: 1.0
+}
+
+risk_score_config {
+  model_proto: {
+    ble_buckets: { weight: 0.1 }
+    ble_buckets: { weight: 0.2 max_attenuation: 1 }
+    infectiousness_buckets: {
+      level: 3
+      weight: 0.3
+      days_since_symptom_onset_min: -1
+      days_since_symptom_onset_max: 1
+    }
+    infectiousness_buckets: {
+      level: 2
+      weight: 0.2
+      days_since_symptom_onset_min: -2
+      days_since_symptom_onset_max: 2
+    }
+    infectiousness_buckets: {
+      level: 1
+      weight: 0.1
+      days_since_symptom_onset_min: -999
+      days_since_symptom_onset_max: 999
+    }
+  }
+  policy_proto: {
+    exposure_notification_window_days: 14
+    risk_scale_factor: 0.5
+  }
+}
+
+# What follows is the population profiles for different age groups.
+# The transition_model is mostly the same for the various profiles except for
+# the transition_probability of edges out of SUSCEPTIBLE, SYMPTOMATIC_SEVERE,
+# SYMPTOMATIC_HOSPITALIZED, and SYMPTOMATIC_CRITICAL. The graph structure and
+# edge durations don't vary across age groups.
+
+# Profile for ages 0-9.
+profiles {
+  id: 1
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.605
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.387
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.008
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.998
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.002
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        transition_probability: 0.05
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      # Note: This age group has zero probability of transitioning directly
+      # to death (see OpenABMs location_death_icu parameter).
+      # transition_probability {
+      #   health_state: REMOVED
+      #   transition_probability: 0
+      #   mean_days_to_transition: 2.27
+      #   sd_days_to_transition: 2.27
+      # }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.95
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.33
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.67
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 2
+    stddev: 2
+  }
+}
+
+# Profile for ages 10-19.
+profiles {
+  id: 2
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.546
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.435
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.019
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.991
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.009
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        transition_probability: 0.05
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      # Note: This age group has zero probability of transitioning directly
+      # to death (see OpenABMs location_death_icu parameter).
+      # transition_probability {
+      #   health_state: REMOVED
+      #   transition_probability: 0
+      #   mean_days_to_transition: 2.27
+      #   sd_days_to_transition: 2.27
+      # }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.95
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.25
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.75
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 2
+    stddev: 2
+  }
+}
+
+# Profile for ages 20-29.
+profiles {
+  id: 3
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.483
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.478
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.039
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.983
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.017
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.045
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.005
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.95
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.5
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.5
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 4
+    stddev: 4
+  }
+}
+
+# Profile for ages 30-39.
+profiles {
+  id: 4
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.418
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.512
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.070
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.935
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.065
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.045
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.005
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.95
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.5
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.5
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 4
+    stddev: 4
+  }
+}
+
+# Profile for ages 40-49.
+profiles {
+  id: 5
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.354
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.532
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.114
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.814
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.186
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.0504
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.0126
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.937
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.5
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.5
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 4
+    stddev: 4
+  }
+}
+
+# Profile for ages 50-59.
+profiles {
+  id: 6
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.294
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.541
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.165
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.769
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.231
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.0976
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.244
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.878
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.690
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.310
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 4
+    stddev: 4
+  }
+}
+
+# Profile for ages 60-69.
+profiles {
+  id: 7
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.242
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.543
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.215
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.676
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.324
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.1096
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.1644
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.726
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.650
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.350
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 4
+    stddev: 4
+  }
+}
+
+# Profile for ages 70-79.
+profiles {
+  id: 8
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.199
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.541
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.260
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.613
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.387
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.1728
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.2592
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.568
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 0.880
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+        transition_probability: 0.120
+        mean_days_to_transition: 18.8
+        sd_days_to_transition: 12.21
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 3
+    stddev: 3
+  }
+}
+
+# Profile for ages 80+.
+profiles {
+  id: 9
+  transition_model {
+    # Note that the EXPOSED state only lasts for a few minutes.  It just serves
+    # as a placeholder for transition probabilities to it's target states.
+    state_transition_diagram {
+      health_state: EXPOSED
+      transition_probability {
+        health_state: ASYMPTOMATIC
+        transition_probability: 0.163
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_MILD
+        transition_probability: 0.534
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+      transition_probability {
+        health_state: PRE_SYMPTOMATIC_SEVERE
+        transition_probability: 0.303
+        mean_days_to_transition: 0.001
+        sd_days_to_transition: 0.0001
+      }
+    }
+    state_transition_diagram {
+      health_state: ASYMPTOMATIC
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 15
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: SYMPTOMATIC_MILD
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_MILD
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+    }
+    state_transition_diagram {
+      health_state: PRE_SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: SYMPTOMATIC_SEVERE
+        transition_probability: 1
+        mean_days_to_transition: 5.42
+        sd_days_to_transition: 2.7
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_SEVERE
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.561
+        mean_days_to_transition: 12
+        sd_days_to_transition: 5
+      }
+      transition_probability {
+        health_state: SYMPTOMATIC_HOSPITALIZED
+        transition_probability: 0.439
+        # Note that in OpenABM this is specified as 5 + bernoulli(.14).  This
+        # Gamma distribution closely matches that distribution.
+        mean_days_to_transition: 5.325
+        sd_days_to_transition: 0.15
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED
+      transition_probability {
+        health_state: SYMPTOMATIC_CRITICAL
+        # Note: this is critical_fraction * location_death_icu.
+        transition_probability: 0.03545
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: REMOVED
+        # Note: this is critical_fraction * (1-location_death_icu).
+        transition_probability: 0.67355
+        mean_days_to_transition: 2.27
+        sd_days_to_transition: 2.27
+      }
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 0.291
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_CRITICAL
+      transition_probability {
+        health_state: REMOVED
+        transition_probability: 1.0
+        mean_days_to_transition: 11.74
+        sd_days_to_transition: 8.79
+      }
+      # In this age bracket all critical patients die.
+      # transition_probability {
+      #   health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      #   transition_probability: 0.0
+      #   mean_days_to_transition: 18.8
+      #   sd_days_to_transition: 12.21
+      # }
+    }
+    state_transition_diagram {
+      health_state: SYMPTOMATIC_HOSPITALIZED_RECOVERING
+      transition_probability {
+        health_state: RECOVERED
+        transition_probability: 1
+        mean_days_to_transition: 8.75
+        sd_days_to_transition: 8.75
+      }
+    }
+  }
+  susceptibility: 1.0
+  infectiousness: 1.0
+  visit_durations {
+    location_type: HOUSEHOLD
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  visit_durations {
+    location_type: BUSINESS
+    gaussian_distribution {
+      mean: 16.0
+      stddev: 1.0
+    }
+  }
+  random_visit_params {
+    mean: 3
+    stddev: 3
+  }
+}
+
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 1.
+}
+stepwise_params {
+  changepoint: 0.99999994
+}
+stepwise_params {
+  changepoint: 0.99999976
+}
+stepwise_params {
+  changepoint: 0.9999981
+}
+stepwise_params {
+  changepoint: 0.99998915
+}
+stepwise_params {
+  changepoint: 0.99989426
+}
+stepwise_params {
+  changepoint: 0.9993038
+}
+stepwise_params {
+  changepoint: 0.9968595
+}
+stepwise_params {
+  changepoint: 0.9869055
+}
+stepwise_params {
+  changepoint: 0.9583875
+}
+stepwise_params {
+  changepoint: 0.92156726
+}
+stepwise_params {
+  changepoint: 0.8832767
+}
+stepwise_params {
+  changepoint: 0.8543031
+}
+stepwise_params {
+  changepoint: 0.8308939
+}
+stepwise_params {
+  changepoint: 0.81462353
+}
+stepwise_params {
+  changepoint: 0.7999654
+}
+stepwise_params {
+  changepoint: 0.7872288
+}
+stepwise_params {
+  changepoint: 0.7766864
+}
+stepwise_params {
+  changepoint: 0.76803565
+}
+stepwise_params {
+  changepoint: 0.76088834
+}
+stepwise_params {
+  changepoint: 0.75616527
+}
+stepwise_params {
+  changepoint: 0.75068736
+}
+stepwise_params {
+  changepoint: 0.74641025
+}
+stepwise_params {
+  changepoint: 0.74349767
+}
+stepwise_params {
+  changepoint: 0.740088
+}
+stepwise_params {
+  changepoint: 0.7383175
+}
+stepwise_params {
+  changepoint: 0.7367529
+}
+stepwise_params {
+  changepoint: 0.7356839
+}
+stepwise_params {
+  changepoint: 0.7350616
+}
+stepwise_params {
+  changepoint: 0.73431563
+}
+stepwise_params {
+  changepoint: 0.7335588
+}
+stepwise_params {
+  changepoint: 0.73329717
+}
+stepwise_params {
+  changepoint: 0.7330837
+}
+stepwise_params {
+  changepoint: 0.7330729
+}
+stepwise_params {
+  changepoint: 0.7328347
+}
+stepwise_params {
+  changepoint: 0.73260194
+}
+stepwise_params {
+  changepoint: 0.732494
+}
+stepwise_params {
+  changepoint: 0.7324209
+}
+stepwise_params {
+  changepoint: 0.7323586
+}
+stepwise_params {
+  changepoint: 0.73230326
+}
+stepwise_params {
+  changepoint: 0.73216546
+}
+stepwise_params {
+  changepoint: 0.73211575
+}
+stepwise_params {
+  changepoint: 0.7319937
+}
+stepwise_params {
+  changepoint: 0.7319734
+}
+stepwise_params {
+  changepoint: 0.73181605
+}
+stepwise_params {
+  changepoint: 0.7317901
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317885
+}
+stepwise_params {
+  changepoint: 0.7317054
+}
+stepwise_params {
+  changepoint: 0.7317054
+}
+stepwise_params {
+  changepoint: 0.7317054
+}
+stepwise_params {
+  changepoint: 0.7317054
+}
+stepwise_params {
+  changepoint: 0.7316194
+}
+stepwise_params {
+  changepoint: 0.7316194
+}
+stepwise_params {
+  changepoint: 0.7316036
+}
+stepwise_params {
+  changepoint: 0.731565
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.73153794
+}
+stepwise_params {
+  changepoint: 0.7315259
+}
+stepwise_params {
+  changepoint: 0.7313702
+}
+stepwise_params {
+  changepoint: 0.7313702
+}
+stepwise_params {
+  changepoint: 0.73118675
+}
+stepwise_params {
+  changepoint: 0.73109984
+}
+stepwise_params {
+  changepoint: 0.73109984
+}
+stepwise_params {
+  changepoint: 0.73109984
+}
+stepwise_params {
+  changepoint: 0.7310293
+}
+stepwise_params {
+  changepoint: 0.73098
+}
+stepwise_params {
+  changepoint: 0.7308445
+}
+stepwise_params {
+  changepoint: 0.7306876
+}
+stepwise_params {
+  changepoint: 0.73050874
+}
+stepwise_params {
+  changepoint: 0.7304316
+}
+stepwise_params {
+  changepoint: 0.7303984
+}
+stepwise_params {
+  changepoint: 0.7302203
+}
+stepwise_params {
+  changepoint: 0.73017645
+}
+stepwise_params {
+  changepoint: 0.73017645
+}
+stepwise_params {
+  changepoint: 0.7301605
+}
+stepwise_params {
+  changepoint: 0.7300091
+}
+stepwise_params {
+  changepoint: 0.7300091
+}
+
+daily_fraction_work: 0.5
+relative_transmission_home: 2.
+relative_transmission_occupation: 1.
+relative_transmission_random: 1.

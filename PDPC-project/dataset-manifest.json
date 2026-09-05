@@ -1,0 +1,123 @@
+{
+  "sourceProject": "Hackathon_Synthetic_Pandemic",
+  "verifiedAt": "2026-09-05T18:40:35.426Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "CSV-Distances/Nabijheid_voorzieningen__buurt_2024_03062026_190209.csv",
+      "bytes": 87498,
+      "sha256": "5fdc4880b3daecf991248d6ae4cffed65bf39b0caf71d2b307b1d9272655f965"
+    },
+    {
+      "path": "CSV-Mobiliteit/Mobiliteit__persoonskenmerken_03062026_190342.csv",
+      "bytes": 182797,
+      "sha256": "b0f4f57cbff2c376deb7543b9afb7e5d2f34fc379453ac8abcac8eefd19013cf"
+    },
+    {
+      "path": "CSV-kerncijfers/Kerncijfers_wijken_en_buurten_NL_and_Big_Cities.csv",
+      "bytes": 562625,
+      "sha256": "3a1db2c47b711381d09a02f1c5c69d0d71c3d2928d043e4817a8488318b58729"
+    },
+    {
+      "path": "CSV-kerncijfers/Kerncijfers_wijken_en_buurten_National_and_DenHaag.csv",
+      "bytes": 73530,
+      "sha256": "e685dd35426f43b7b88f9ef432b97a0730fb06ac0451e9cc13a9be3e38dbdc47"
+    },
+    {
+      "path": "CSV_additional_data/Arbeidsdeelname__kerncijfers__2003_2022_04062026_112952.csv",
+      "bytes": 3328,
+      "sha256": "b659c20e0aab025a30797809396f870b4eaea5885b1bfed7e6f90145743daeba"
+    },
+    {
+      "path": "CSV_additional_data/Bevolking__onderwijsniveau_en_migratieachtergrond_2003_2021_04062026_112609.csv",
+      "bytes": 3633,
+      "sha256": "3ff95cbd9223bcc8f0c0d7f0d0162381a943bbe0bc2bc81623eae8b8c6d73f7a"
+    },
+    {
+      "path": "CSV_additional_data/Bodemgebruik__uitgebreide_gebruiksvorm__per_gemeente_Rotterdam_04062026_125842.csv",
+      "bytes": 4842,
+      "sha256": "aa02607f5b7c60a398ccdf3007c26368c985c8058f36033a5fbb40718a0d5bc5"
+    },
+    {
+      "path": "CSV_additional_data/Kerncijfers_wijken_en_buurten_Rotterdam_2025_04062026_125511.csv",
+      "bytes": 80780,
+      "sha256": "5069ecbc1a8201ca42dce11a65be02276a1480304e952d61064c27f790c13d46"
+    },
+    {
+      "path": "CSV_additional_data/Logiesaccommodaties__gasten__nachten__woonland__logiesvorm__regio_04062026_113201.csv",
+      "bytes": 26111,
+      "sha256": "9e8d46fbbf39e073555c4ad2d84361a67be7681f15beff4dbb8b952e5779b970"
+    },
+    {
+      "path": "CSV_additional_data/Mobiliteit__per_persoon__persoonskenmerken__vervoerwijzen_en_regio_s_04062026_113023.csv",
+      "bytes": 35929,
+      "sha256": "451e20df0a94705e64f00335a7bb4f76ded8e5b21158119cadf0aaf5ea4605ff"
+    },
+    {
+      "path": "CSV_additional_data/Nabijheid_voorzieningen__afstand_locatie__wijk__en_buurtcijfers_Rotterdam_2025_04062026_125941.csv",
+      "bytes": 82953,
+      "sha256": "3d3f61712e6624d8ba90c79071073a6a8a77220c6a0c91dbe3ec7c73ae59f27d"
+    },
+    {
+      "path": "gensynthpop-rotterdam/datasources/buurt_names_85984NED.json",
+      "bytes": 494633,
+      "sha256": "59c51213b57f564309fdb535f6b9746d74a1795bdcca4f73f57e367f2806f60e"
+    },
+    {
+      "path": "gensynthpop-rotterdam/datasources/household_position_age_gender_NL_71488ned.csv",
+      "bytes": 2131,
+      "sha256": "20fdf65cb3db49261ec1cae0ef41e21b73650688261d828d9a99ad5f704ae02c"
+    },
+    {
+      "path": "gensynthpop-rotterdam/datasources/kerncijfers_all_buurten_85984NED.csv",
+      "bytes": 3522969,
+      "sha256": "1518f9c458492c51ea1ea9254ce0818dbad9b27032e97e5787b67eb0a4a08ad2"
+    },
+    {
+      "path": "gensynthpop-rotterdam/output/netherlands_build_summary.json",
+      "bytes": 1456,
+      "sha256": "16a7657b09df940215f0c8ee0f9df7fd675745bcc30f0f7ff8d8b55dcc1399a1"
+    },
+    {
+      "path": "onegov2-synthetic-data/resources/SynthData.xlsx",
+      "bytes": 7019,
+      "sha256": "9dbe419ee327e83cd2e415111ecb6c3353c9dc9ca9214d5f3321a80c1414bbfe"
+    },
+    {
+      "path": "onegov2-synthetic-data/scripts/cbs_commuter_corop_83658NED.csv",
+      "bytes": 95549,
+      "sha256": "afd08dc4a5543b794ef4542bc077d5670ae1d10b9e835bc20190a1e7a5149ed9"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/cityProfiles.json",
+      "bytes": 2892735,
+      "sha256": "8fc9c9e37650465817ce3a1e22fe141a15a88ca92bd7ec0aba59210c46e7bfc9"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/dutchProfiles.json",
+      "bytes": 247109,
+      "sha256": "528c097844cd4dbf3d8a992d5017f3e3d2cfb921412986bcdaf1b1fc7c7ab743"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/nationProfiles.json",
+      "bytes": 315,
+      "sha256": "6c0c7ea44e21c603b72275f12258b7ad845cd4d370b809002dc00747014e10ff"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/netherlandsCaDensity.json",
+      "bytes": 776510,
+      "sha256": "48745bcd44d46656728f69103065b19b8ec0e5eb3c9c127338d5fbee676a3704"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/netherlandsClusters.json",
+      "bytes": 37655,
+      "sha256": "be83f4d119efc196daf45f0303666df94b626ee256e4ad3bb8f1a8f3d7f26259"
+    },
+    {
+      "path": "onegov2-synthetic-data/src/data/rotterdamBuurten.json",
+      "bytes": 396602,
+      "sha256": "e25438cb28990f33d4e71412023553dc7dc3d45ec25c2fb17b9dc31eeeb63784"
+    }
+  ],
+  "publicationScope": "Source and embedded data published to GitHub; large generated CSVs excluded"
+}

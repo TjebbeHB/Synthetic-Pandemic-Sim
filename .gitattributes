@@ -1,0 +1,8 @@
+# Keep checksummed source data byte-identical on every platform.
+PDPC-project/**/*.csv -text
+PDPC-project/**/*.json -text
+PDPC-project/**/*.xlsx binary
+
+# Keep upstream reference code separate in GitHub language/review statistics.
+PDPC-project/external/** linguist-vendored
+PDPC-project/**/src/data/*.json linguist-generated
