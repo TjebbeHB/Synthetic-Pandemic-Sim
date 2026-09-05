@@ -1,8 +1,14 @@
 # OneGov #2 | Synthetic Data: Pandemic Preparedness
 
+![Rotterdam Scenario-atlas: synthetische populaties en ruimtelijke scenarioverkenning. Onderzoeksprototype.](PDPC-project/onegov2-synthetic-data/docs/images/rotterdam-banner.png)
+
 ## Nieuwe PDPC-versie
 
 De vernieuwde **Rotterdam Scenario-atlas**, eerdere dashboards, populatiegenerator en benodigde CBS-brondata staan samen in **[PDPC-project](PDPC-project/README.md)** op deze branch. De oorspronkelijke bestanden hieronder zijn behouden.
+
+![Rotterdam-dashboard met bevolkingsdichtheid per buurt, buurtprofiel en scenario-instellingen.](PDPC-project/onegov2-synthetic-data/docs/images/rotterdam-dashboard.png)
+
+*Bevolkingscontext vóór een simulatie; geen uitbraakresultaten. Kaart: CBS/PDOK en OpenStreetMap.*
 
 ```sh
 cd PDPC-project/onegov2-synthetic-data

@@ -1,5 +1,7 @@
 # PDPC-project
 
+![Rotterdam Scenario-atlas: synthetische populaties en ruimtelijke scenarioverkenning. Onderzoeksprototype.](onegov2-synthetic-data/docs/images/rotterdam-banner.png)
+
 ## Rotterdam Scenario-atlas
 
 Een zelfstandige doorontwikkeling van het synthetische-pandemieproject voor verkennende gesprekken met PDPC en GGD Rotterdam-Rijnmond. Deze GitHub-versie bevat het gereedschap, de populatiegenerator, eerdere dashboards en benodigde brondata. De oorspronkelijke bestanden in de repository zijn behouden; deze versie staat apart op de branch `pdpc-rotterdam`.
@@ -7,6 +9,12 @@ Een zelfstandige doorontwikkeling van het synthetische-pandemieproject voor verk
 Grote gegenereerde populatie-CSV's, lokale presentaties, losse referentie-PDF's en tijdelijke bestanden zijn niet in deze publicatie opgenomen. Zie [output en controlesommen](gensynthpop-rotterdam/output/README.md). Dit heeft geen invloed op het draaien van de dashboards.
 
 **Onderzoeksprototype, geen gevalideerd voorspelmodel.** Deze versie verbetert de kaart, bediening, transparantie en reproduceerbaarheid. Zij valideert of repareert niet automatisch de synthetische populatie of de epidemiologische aannames.
+
+### Dashboard
+
+![Rotterdam-dashboard met bevolkingsdichtheid per buurt, buurtprofiel en scenario-instellingen.](onegov2-synthetic-data/docs/images/rotterdam-dashboard.png)
+
+*Bevolkingscontext vóór een simulatie; geen uitbraakresultaten. Kaart: CBS/PDOK en OpenStreetMap.*
 
 ### Starten
 
