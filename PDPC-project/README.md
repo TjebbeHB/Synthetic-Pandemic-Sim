@@ -1,10 +1,22 @@
 # PDPC-project
 
+## Huidige hoofdversie: Synthetische Populatie Lab
+
+De app opent met populatiegeneratie voor **Rotterdam, een provincie of heel Nederland**. Selecteer CBS-bronjaar **2022, 2023, 2024 of 2025**, kies kenmerken en download personen, huishoudens, lidmaatschappen en optionele activiteiten als gekoppelde CSV-tabellen in één ZIP. Elke export bevat broninvoer, methode, gegevenswoordenboek en kwaliteitscontroles. Het gekozen jaar bepaalt ook de gemeentelijke indeling; ontbrekende historische kenmerken blijven onbekend.
+
+De Rotterdamse populatiekaart ondersteunt wijken, buurten en volledig scherm. De kaartgrenzen blijven expliciet een referentie uit 2024; rioolkoppelingen zijn schattingen op basis van fictieve woonlocaties. Oudere netwerken en dashboards staan achter het tandwiel rechtsboven.
+
+[Live app](https://pandemic-prep.tjebbe-boersma.com/) · [Methode en beperkingen](onegov2-synthetic-data/docs/research-methods.md) · [Gegevenswoordenboek](onegov2-synthetic-data/docs/research-data-dictionary.md) · [Exports maken en publiceren](onegov2-synthetic-data/docs/research-release.md).
+
+Grote gegenereerde ZIP-bestanden staan buiten Git. De live app biedt vaste 2024-downloads; de exporthandleiding bevat de opdrachten om deze lokaal opnieuw te maken. Translink-profielen zijn externe referenties. De NS-connector vereist een eigen API-abonnementssleutel buiten de browser en Git.
+
+Alleen de onderstaande scenario-atlasbeschrijving betreft het eerdere model. Onafhankelijke populatievalidatie en epidemiologische kalibratie blijven nodig.
+
 ![Rotterdam Scenario-atlas: synthetische populaties en ruimtelijke scenarioverkenning. Onderzoeksprototype.](onegov2-synthetic-data/docs/images/rotterdam-banner.png)
 
 ## Rotterdam Scenario-atlas
 
-Een zelfstandige doorontwikkeling van het synthetische-pandemieproject voor verkennende gesprekken met PDPC en GGD Rotterdam-Rijnmond. Deze GitHub-versie bevat het gereedschap, de populatiegenerator, eerdere dashboards en benodigde brondata. De oorspronkelijke bestanden in de repository zijn behouden; deze versie staat apart op de branch `pdpc-rotterdam`.
+Een zelfstandige doorontwikkeling van het synthetische-pandemieproject voor verkennende gesprekken met PDPC en GGD Rotterdam-Rijnmond. Deze GitHub-versie bevat het gereedschap, de populatiegenerator, eerdere dashboards en benodigde brondata. De oorspronkelijke bestanden in de repository zijn behouden; de actuele versie staat op `main`, met behoud van de eerdere geschiedenis.
 
 Grote gegenereerde populatie-CSV's, lokale presentaties, losse referentie-PDF's en tijdelijke bestanden zijn niet in deze publicatie opgenomen. Zie [output en controlesommen](gensynthpop-rotterdam/output/README.md). Dit heeft geen invloed op het draaien van de dashboards.
 

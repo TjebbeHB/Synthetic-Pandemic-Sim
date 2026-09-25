@@ -6,13 +6,21 @@
   "scripts": {
     "dev": "vite",
     "test:pdpc": "node --test tests/pdpc.test.mjs",
+    "test:lives": "node --test tests/lives.test.mjs",
+    "generate:lives": "node scripts/generate-lives.mjs",
     "build": "tsc -b && vite build",
     "build:tablet": "tsc -b && vite build --mode tablet",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export:research": "node scripts/export-research.mjs",
+    "prebuild": "node scripts/prepare-research-docs.mjs",
+    "predev": "node scripts/prepare-research-docs.mjs",
+    "test:research": "node --test tests/research.test.mjs",
+    "test:years": "node --test tests/cbs-years.test.mjs"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.21",
     "@vitejs/plugin-react": "^5.1.1",
+    "fflate": "^0.8.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.555.0",
     "react": "^19.2.1",

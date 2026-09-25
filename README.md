@@ -2,9 +2,11 @@
 
 ![Rotterdam Scenario-atlas: synthetische populaties en ruimtelijke scenarioverkenning. Onderzoeksprototype.](PDPC-project/onegov2-synthetic-data/docs/images/rotterdam-banner.png)
 
-## Nieuwe PDPC-versie
+## Synthetische Populatie Lab · huidige hoofdversie
 
-De vernieuwde **Rotterdam Scenario-atlas**, eerdere dashboards, populatiegenerator en benodigde CBS-brondata staan samen in **[PDPC-project](PDPC-project/README.md)** op deze branch. De oorspronkelijke bestanden hieronder zijn behouden.
+De hoofdversie staat in **[PDPC-project](PDPC-project/README.md)**. Genereer synthetische personen voor Rotterdam, een provincie of heel Nederland met CBS-bronjaren **2022–2025**; download gekoppelde onderzoeksdatasets en bekijk Rotterdam op de kaart. De oudere contactnetwerken en scenario-atlas blijven beschikbaar achter het tandwiel.
+
+[Open de live app](https://pandemic-prep.tjebbe-boersma.com/) · [Methode en aannames](PDPC-project/onegov2-synthetic-data/docs/research-methods.md) · [Exporthandleiding](PDPC-project/onegov2-synthetic-data/docs/research-release.md)
 
 ![Rotterdam-dashboard met bevolkingsdichtheid per buurt, buurtprofiel en scenario-instellingen.](PDPC-project/onegov2-synthetic-data/docs/images/rotterdam-dashboard.png)
 
@@ -18,7 +20,7 @@ npm run dev -- --host 127.0.0.1 --port 5187
 
 Open http://127.0.0.1:5187. Grote gegenereerde populatiebestanden staan niet in Git; zie [beschikbare output en controlesommen](PDPC-project/gensynthpop-rotterdam/output/README.md).
 
-The new PDPC Rotterdam workspace is in [PDPC-project](PDPC-project/README.md), including the generator and required source data. Use the commands above to run that version. The original application remains below; `main` has not been replaced. This is a research prototype, not a validated epidemiological forecast.
+The current main-branch application is in [PDPC-project](PDPC-project/README.md): CBS population generation for 2022–2025, research exports and Rotterdam mapping. Use the commands above to run it. The original application and earlier simulation models are preserved below. This is a research prototype, not a validated epidemiological forecast.
 
 ## Nederlands
 

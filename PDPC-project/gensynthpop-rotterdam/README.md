@@ -1,5 +1,7 @@
 # Synthetische populatie van Rotterdam (GenSynthPop)
 
+> Historische generator. Voor de verbeterde Rotterdamse familiecombinaties, leeftijdsquota, activiteitstoewijzing en export met dezelfde engine als de app, gebruik `npm run generate:lives` vanuit `../onegov2-synthetic-data`. Zie [Synthetische levens](../onegov2-synthetic-data/docs/synthetic-lives.md). Onderstaande resultaten gelden voor de eerdere pipeline en valideren de nieuwe versie niet.
+
 ## Nederlands
 
 > *Een volledige synthetische micro-populatie voor Rotterdam, gebouwd uit publieke CBS-aggregaten en bedoeld als reproduceerbare input voor epidemische simulaties.*

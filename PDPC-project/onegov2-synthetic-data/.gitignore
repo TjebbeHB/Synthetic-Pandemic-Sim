@@ -68,3 +68,10 @@ data/synthetic/*
 
 # Local verification artifacts
 artifacts/
+output/
+
+# Reproducible downloadable research examples
+public/research/*.zip
+
+# Machine-specific Sites deployment metadata
+.openai/

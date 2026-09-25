@@ -18,11 +18,11 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         },
         manifest: {
-          name: "PDPC Rotterdam Scenario-atlas",
-          short_name: "PDPC Scenario Lab",
+          name: "Synthetische Populatie Lab",
+          short_name: "Populatie Lab",
           description:
-            "Synthetische scenarioverkenning met Rotterdamse buurtprofielen. Onderzoeksprototype, geen gevalideerde voorspelling.",
-          theme_color: "#1c5a4c",
+            "Synthetische personen voor Rotterdam, provincies en Nederland. CBS-bronnen, onderzoeksdatasets en methode.",
+          theme_color: "#00811f",
           background_color: "#edf4f2",
           display: "standalone",
           orientation: "any",

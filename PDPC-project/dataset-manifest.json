@@ -1,6 +1,6 @@
 {
   "sourceProject": "Hackathon_Synthetic_Pandemic",
-  "verifiedAt": "2026-09-05T18:40:35.426Z",
+  "verifiedAt": "2026-09-14T22:30:44.208118+00:00",
   "algorithm": "SHA-256",
   "files": [
     {
@@ -89,6 +89,11 @@
       "sha256": "afd08dc4a5543b794ef4542bc077d5670ae1d10b9e835bc20190a1e7a5149ed9"
     },
     {
+      "path": "onegov2-synthetic-data/src/data/cbsRotterdamSnapshot.json",
+      "bytes": 434190,
+      "sha256": "99823f10e5a4a54cbb8059cb15d2fb087b56beb4e7099e79a46c608aeaffd19b"
+    },
+    {
       "path": "onegov2-synthetic-data/src/data/cityProfiles.json",
       "bytes": 2892735,
       "sha256": "8fc9c9e37650465817ce3a1e22fe141a15a88ca92bd7ec0aba59210c46e7bfc9"
@@ -115,8 +120,8 @@
     },
     {
       "path": "onegov2-synthetic-data/src/data/rotterdamBuurten.json",
-      "bytes": 396602,
-      "sha256": "e25438cb28990f33d4e71412023553dc7dc3d45ec25c2fb17b9dc31eeeb63784"
+      "bytes": 469465,
+      "sha256": "d53952c117a8fd169e900f52a11b2bfefb4e2070005e62e507931f533e8ae8bf"
     }
   ],
   "publicationScope": "Source and embedded data published to GitHub; large generated CSVs excluded"
